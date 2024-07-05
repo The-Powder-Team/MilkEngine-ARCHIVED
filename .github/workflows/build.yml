@@ -1,0 +1,81 @@
+name: Build
+on: [release, workflow_dispatch]
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Install Homebrew (macOS package manager)
+        run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+      - name: Install haxe
+        run: brew install haxe
+
+      - name: Install dependencies
+        run: haxelib install lime hxcpp flixel flixel-addons flixel-ui hscript newgrounds
+
+      - name: Install Dependencies (git)
+        run: haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc;haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc
+
+      - name: Build with Lime
+        run: haxelib run lime build mac
+
+      - name: Upload release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: export/release/windows
+          tag: ${{ github.ref }}
+
+  build-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Install Haxe
+        uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.1.5
+
+      - name: Install Dependencies
+        run: haxelib install lime hxcpp flixel flixel-addons flixel-ui hscript newgrounds
+
+      - name: Install Dependencies (git)
+        run: haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc;haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc
+
+      - name: Build with Lime
+        run: haxelib run lime build linux
+
+      - name: Upload release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: export/release/windows
+          tag: ${{ github.ref }}
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+      - name: Install Haxe
+        run: winget install HaxeFoundation.Haxe
+
+      - name: Install Dependencies
+        run: haxelib install lime; haxelib install flixel; haxelib install flixel-addons; haxelib install flixel-ui; haxelib install hscript; haxelib install newgrounds
+
+      - name: Install Dependencies (git)
+        run: haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc; haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc
+
+      - name: Build with Lime
+        run: haxelib run lime build windows
+
+      - name: Upload release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: export/release/windows
+          tag: ${{ github.ref }}
